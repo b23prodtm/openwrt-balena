@@ -27,7 +27,8 @@ on:
 
 env:
   OPENWRT_VERSION: ${{ inputs.openwrt_version }}
-  CI_IMAGE: albrechtloh/openwrt-docker:${{ inputs.ci_tag }}
+  DOCKER_REPO: bprtkop/openwrt-balena
+  CI_IMAGE: bprtkop/openwrt-balena:${{ inputs.ci_tag }}
 
 jobs:
   build:
@@ -60,7 +61,7 @@ jobs:
       - name: Login into Docker Hub
         uses: docker/login-action@v4
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          username: ${{ vars.DOCKERHUB_USERNAME || 'bprtkop' }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build Docker image
@@ -79,11 +80,11 @@ jobs:
             BUILDKIT_MULTI_PLATFORM=1
           tags: |
             ${{ env.CI_IMAGE }}
-            localhost:5000/local/openwrt-docker:latest
+            localhost:5000/local/openwrt-balena:latest
 
       - name: Inspect
         run: |
-          docker buildx imagetools inspect localhost:5000/local/openwrt-docker:latest
+          docker buildx imagetools inspect localhost:5000/local/openwrt-balena:latest
 
       - name: Build and export
         uses: docker/build-push-action@v7
@@ -91,7 +92,7 @@ jobs:
           DOCKER_BUILD_SUMMARY: false
           DOCKER_BUILD_RECORD_UPLOAD: false
         with:
-          tags: openwrt-docker:latest
+          tags: openwrt-balena:latest
           build-args: OPENWRT_VERSION=${{ env.OPENWRT_VERSION }}
           allow: security.insecure,network.host
           outputs: type=docker,dest=/tmp/openwrt-docker-image.tar
@@ -103,6 +104,7 @@ jobs:
           path: /tmp/openwrt-docker-image.tar
 
       - name: Login to Weidmueller wmucdev
+        if: secrets.WMUCDEV_USERNAME != '' && secrets.WMUCDEV_TOKEN != ''
         uses: docker/login-action@v4
         with:
           registry: wmucdev.azurecr.io
@@ -111,19 +113,13 @@ jobs:
 
       - name: Create Weidmueller u-OS app
         id: create_u-os-app
+        if: secrets.WMUCDEV_USERNAME != '' && secrets.WMUCDEV_TOKEN != ''
         env:
           APP_VERSION_PREFIX: ${{ inputs.app_version_prefix }}
         run: |
-          # uc-aom-packager accept only version that has to be greater than the previous one. Lets use the datetime to ensure that.
           DATETIME=$(date "+%Y%m%d%H%M%S")
-
-          # uc-aom-packager allow only decimal numbers as version number for an unkonwn reason
-          # see https://github.com/weidmueller/uc-addon/blob/main/uc-manifest.schema-doc.md#version)
-          # So lets convert the git hash into a decimal value
           GIT_HASH=`git rev-parse --short HEAD`
           GIT_HASH_DECIMAL=$((16#$GIT_HASH))
-
-          # Create app version
           APP_VERSION=$APP_VERSION_PREFIX.$DATETIME-$GIT_HASH_DECIMAL
 
           echo "***** Create manifest from template *****"
@@ -132,9 +128,6 @@ jobs:
           cat u-os-app/manifest.json | grep version
 
           echo "***** Run uc-aom-packager to create the u-OS app *****"
-          # uc-aom-packager accepts only multiarch images. "--build-arg BUILDKIT_MULTI_PLATFORM=1" has to set to ensure that.
-          # uc-aom-packager needs to Docker registry credentials in a clear text file. Because of security concerns we use a local registry without credentials here.
-
           docker run --rm --network=host --pull=always \
           --mount src=$(pwd)/u-os-app,target=/tmp/u-os-app-openwrt,type=bind wmucdev.azurecr.io/u-control/uc-aom-packager:0 \
           uc-aom-packager push \
@@ -184,21 +177,17 @@ jobs:
 
       - name: Prepare OpenWrt rootfs
         run: |
-          # Use automated generated image (commented "#image:" lines are not touched)
           sed -i "s|^\(\s*\)image: .*|\1image: $CI_IMAGE|" docker-compose.yml
           grep -n "image:" docker-compose.yml
 
-          # Run OpenWrt container for some time to install additional IPKs
-          set +e # Enable that the next command can fail
+          set +e
           timeout --preserve-status 60 docker compose up
-          set -e # Revert set +e
+          set -e
 
-          # Get image from volume
           sudo find /var/lib/docker/volumes/
           IMAGE=$(sudo cat /var/lib/docker/volumes/openwrt-docker_data/_data/current_version)
           echo $IMAGE
 
-          # Mount volume
           sudo ./src/mount_openwrt_squashfs_combined.sh "/var/lib/docker/volumes/openwrt-docker_data/_data/${IMAGE}"
 
       - name: Generate OpenWrt SBOM
@@ -250,29 +239,21 @@ jobs:
       - name: Install VMs
         run: |
           set -x
-          sudo snap install multipass # need multipass >= 1.15 because of networks support
+          sudo snap install multipass
 
-          # Workaround for "multipass_root_cert.pem': No such file or directory" issue, see https://github.com/canonical/multipass/issues/5015
           sleep 180
-
-          # Workaround for 'multipass socket access denied'
           sudo chmod a+w /var/snap/multipass/common/multipass_socket
 
           multipass find
 
-          # Set up some bridges for the VMs
           sudo ip link add lannetvm type bridge
           sudo ip link add wannetvm type bridge
           sudo ip link set dev lannetvm up
           sudo ip link set dev wannetvm up
           ip addr
 
-          # We need to disable the firewall otherwise the tap devices are not working properly
           sudo ufw disable
 
-          # Start VMs
-          # Multipass and the OpenWrt container are using the same MAC QUI 52:54:00 which creates error. Let's use differnet MAC addresses here
-          # Multipass >= 1.17 dropped blueprints (formerly "multipass launch docker"), so install Docker via cloud-init
           printf '#cloud-config\nruncmd:\n  - curl -fsSL https://get.docker.com | sh\n  - adduser ubuntu docker\n' | \
             multipass launch 24.04 --cpus 2 --memory 4G --disk 40G --timeout 1800 --cloud-init - \
             --network name=wannetvm,mac=06:00:00:11:22:33 --network name=lannetvm,mac=06:00:00:44:55:66 --name router-vm
@@ -294,10 +275,7 @@ jobs:
 
       - name: Prepare VMs
         run: |
-          # Install python
           multipass exec router-vm -- sudo apt-get -y install python3-pip python-is-python3 python3-venv
-
-          # Install everthing for pytest
           multipass exec router-vm -- find .
           multipass exec router-vm -- bash -c 'python -m venv ~/.venv'
           multipass exec router-vm -- bash -c 'source ~/.venv/bin/activate && pip install -r test/requirements.txt'
@@ -305,26 +283,20 @@ jobs:
           echo '******** router-vm IPs ********'
           multipass exec router-vm -- ip addr
 
-          # Prepare WAN VM
           echo '******** wan-vm IPs ********'
-          # Add IP address
           multipass exec wan-vm -- sudo ip addr add 192.168.22.1/24 dev eth1
           multipass exec wan-vm -- ip addr
-          # Install DHCP server
           multipass exec wan-vm -- sudo sh -c 'apt-get update && apt-get install -y isc-dhcp-server && echo "default-lease-time 600;\nmax-lease-time 7200;\nsubnet 192.168.22.0 netmask 255.255.255.0 {\n  range 192.168.22.100 192.168.22.200;\n  option routers 192.168.22.1;\n  option domain-name-servers 8.8.8.8, 8.8.4.4;\n  option domain-name \"example.org\";\n}" > /etc/dhcp/dhcpd.conf && systemctl enable isc-dhcp-server && systemctl restart isc-dhcp-server'
           multipass exec wan-vm -- cat /etc/dhcp/dhcpd.conf
-          # Enable NAT
           multipass exec wan-vm -- sudo modprobe iptable_nat
           multipass exec wan-vm -- sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
           multipass exec wan-vm -- sudo sysctl -w net.ipv4.ip_forward=1
 
-          # Prepare LAN VM
           echo '******** lan-vm IPs ********'
           multipass exec lan-vm -- sudo ip addr add 172.31.1.2/24 dev eth1
           multipass exec lan-vm -- sudo ip addr add 172.31.22.2/24 dev eth1
           multipass exec lan-vm -- ip addr
 
-          # Double check if virtual networks are working
           echo '******** host IPs ********'
           ip addr
           sudo ufw status
@@ -335,13 +307,12 @@ jobs:
           multipass exec router-vm -- ip addr
 
           echo '******** Test connection between router-vm, lan-vm and wan-vm ********'
-          multipass exec router-vm -- ping -c 1 192.168.22.1 # to wan-vm
-          multipass exec router-vm -- ping -c 1 172.31.22.2 # to lan-vm
+          multipass exec router-vm -- ping -c 1 192.168.22.1
+          multipass exec router-vm -- ping -c 1 172.31.22.2
 
       - name: Run tests
         run: |
           cat test/tests/docker-compose.yml.template
-          # Run pytest
           multipass exec router-vm -- bash -c 'source ~/.venv/bin/activate && cd test/ && pytest -v -s --html=report.html --self-contained-html --reruns 3'
 
       - name: Archive test report
@@ -364,7 +335,7 @@ jobs:
       - name: Login into Docker Hub
         uses: docker/login-action@v4
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          username: ${{ vars.DOCKERHUB_USERNAME || 'bprtkop' }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Tag image at Docker Hub
@@ -374,12 +345,12 @@ jobs:
         run: |
           TAGS=()
           for TAG in $PUBLISH_TAGS; do
-            TAGS+=(--tag "albrechtloh/openwrt-docker:$TAG")
+            TAGS+=(--tag "${DOCKER_REPO}:$TAG")
           done
 
           if [ "$PUBLISH_VERSIONED_TAG" = "true" ]; then
             GIT_HASH=`git rev-parse --short HEAD`
-            TAGS+=(--tag "albrechtloh/openwrt-docker:openwrt-$OPENWRT_VERSION-$GIT_HASH")
+            TAGS+=(--tag "${DOCKER_REPO}:openwrt-$OPENWRT_VERSION-$GIT_HASH")
           fi
 
           echo "Publishing $CI_IMAGE as: ${TAGS[*]}"
