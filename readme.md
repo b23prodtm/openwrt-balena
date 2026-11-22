@@ -146,3 +146,21 @@ By design, any user with root access to the host system also has full control ov
 The OpenWrt container must run in privileged mode to ensure exclusive access to the host's Ethernet interfaces and to enable the reverse proxy for LuCI on the host. This is necessary for proper operation but comes with inherent security considerations.
 
 **Disclaimer:** This software container is a proof of concept and has not undergone comprehensive cybersecurity assessments. Users are cautioned that potential vulnerabilities may exist, posing risks to system security and data integrity. By deploying or using this container, users accept the associated risks, and the developers disclaim any responsibility for security incidents or data breaches. A thorough security evaluation, including penetration testing and compliance checks, is strongly advised before production deployment. The software is provided without warranty, and users are encouraged to provide feedback for collaborative efforts in addressing security concerns. Users acknowledge reading and understanding this disclaimer, assuming responsibility for ensuring their environment's security.
+
+## Credits & License
+
+This repository (`b23prodtm/openwrt-balena`) is a fork and adaptation of [**AlbrechtL/openwrt-docker**](https://github.com/AlbrechtL/openwrt-docker), originally created to run OpenWrt inside a full-system QEMU/KVM container with `macvtap` networking.
+
+### Fork & Adaptations (`b23prodtm/openwrt-balena`)
+* Added and adapted configurations for ARM / ARM64 targets (such as Raspberry Pi boards) and one-click deployment metadata (`balena.yml`) for balenaCloud.
+* Configured multi-architecture container builds (`linux/amd64`, `linux/arm64`) and repository/registry references under `b23prodtm/openwrt-balena`.
+
+### Upstream Open-Source Projects
+This container relies on several upstream open-source projects, each governed by its own license terms:
+* [**OpenWrt**](https://openwrt.org/) — Linux-based embedded router OS and packages (predominantly GPL-2.0 and compatible open-source licenses).
+* [**QEMU**](https://www.qemu.org/) & [**qemu-docker**](https://github.com/qemus/qemu-docker) — Full system emulation and container wrapper.
+* [**Alpine Linux**](https://www.alpinelinux.org/) — Container base image and userland packages.
+* [**noVNC**](https://novnc.com/), [**Docker**](https://www.docker.com/), [**Angular**](https://angular.dev/), and [**Angular Material**](https://material.angular.io/).
+
+### License Compliance
+* This project inherits the repository license defined in the [`LICENSE`](./LICENSE) file (originally from `AlbrechtL/openwrt-docker`). Please refer to [`LICENSE`](./LICENSE) and any generated SBOM / upstream package notices for exact redistribution and source-availability obligations.
