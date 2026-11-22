@@ -11,7 +11,6 @@ jobs:
     with:
       openwrt_version: 25.12.6
       ci_tag: ci-openwrt-stable
-      app_version_prefix: 25.12.6
       publish_tags: latest
       publish_versioned_tag: true
     secrets: inherit
