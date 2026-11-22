@@ -6,11 +6,21 @@ on:
       - main
   pull_request:
   workflow_dispatch:
+    inputs:
+      runner:
+        description: Runner du job build (ubuntu-latest par défaut, self-hosted = build locale)
+        required: true
+        type: choice
+        options:
+          - ubuntu-latest
+          - self-hosted
+        default: ubuntu-latest
 
 jobs:
   build-test-publish:
     uses: ./.github/workflows/build-test-publish.yml
     with:
+      runner: ${{ inputs.runner || 'ubuntu-latest' }}
       openwrt_version: 25.12.6
       ci_tag: ci-openwrt-stable
       publish_tags: latest
