@@ -1,8 +1,8 @@
 # OpenWrt docker container for x86_64, arm64 and Weidmueller u-OS
 
-[![Docker pulls](https://img.shields.io/docker/pulls/albrechtloh/openwrt-docker)](https://hub.docker.com/r/albrechtloh/openwrt-docker)
-[![OpenWrt stable build](https://github.com/AlbrechtL/openwrt-docker/actions/workflows/openwrt-stable-build.yml/badge.svg)](https://github.com/AlbrechtL/openwrt-docker/actions/workflows/openwrt-stable-build.yml)
-[![OpenWrt master build](https://github.com/AlbrechtL/openwrt-docker/actions/workflows/openwrt-master-build.yml/badge.svg)](https://github.com/AlbrechtL/openwrt-docker/actions/workflows/openwrt-master-build.yml)
+[![Docker pulls](https://img.shields.io/docker/pulls/b23prodtm/openwrt-balena)](https://hub.docker.com/r/b23prodtm/openwrt-balena)
+[![OpenWrt stable build](https://github.com/b23prodtm/openwrt-balena/actions/workflows/openwrt-stable-build.yml/badge.svg)](https://github.com/b23prodtm/openwrt-balena/actions/workflows/openwrt-stable-build.yml)
+[![OpenWrt master build](https://github.com/b23prodtm/openwrt-balena/actions/workflows/openwrt-master-build.yml/badge.svg)](https://github.com/b23prodtm/openwrt-balena/actions/workflows/openwrt-master-build.yml)
 
 This Docker container brings you OpenWrt, a software-based router solution, in an easy-to-use setup. Unlike other OpenWrt containers, this one provides a full system emulation, complete with OpenWrt's own Linux kernel. Thanks to powerful technologies like KVM and macvtap, OpenWrt runs at nearly native speeds here. We use the original OpenWrt binary builds, so most features should work seamlessly. If you notice any features that aren’t working as expected, please let us know!
 
@@ -42,20 +42,20 @@ All other drivers for USB and PCIe devices needs to be installed via the OpenWrt
 ## Usage
 This project uses Docker and Docker Compose to run OpenWrt in a containerized environment. If you are not familiar with Docker or Docker Compose, please refer to the [official Docker documentation](https://docs.docker.com/get-started/) for guidance on installation and usage before proceeding.
 
-Adapt [`docker-compose.yml`](https://github.com/AlbrechtL/openwrt-docker/blob/master/docker-compose.yml) to your needs and run `docker compose up`.
+Adapt [`docker-compose.yml`](https://github.com/b23prodtm/openwrt-balena/blob/master/docker-compose.yml) to your needs and run `docker compose up`.
 
-Ready to use images are available at https://hub.docker.com/r/albrechtloh/openwrt-docker.
+Ready to use images are available at https://hub.docker.com/r/b23prodtm/openwrt-balena.
 
-Currently, three images are available. For all of these images automated tests are applied.
-* `albrechtloh/openwrt-docker:latest` Latest OpenWrt stable version e.g. 24.10.0
-* `albrechtloh/openwrt-docker:openwrt-master-snapshot` Latest OpenWrt master version
+Currently, two main image tags are referenced for automated CI builds and testing:
+* `b23prodtm/openwrt-balena:latest` Latest OpenWrt stable version e.g. 24.10.0
+* `b23prodtm/openwrt-balena:openwrt-master-snapshot` Latest OpenWrt master version
 
 After successfully starting the container, the web interface is accessible at [http://localhost:8006/dashboard](http://localhost:8006/dashboard) in the default configuration.
 
 ## Support
 We really want to help you using this container image.
-* If you run into a bug or if you request a feature open a new issue here: https://github.com/AlbrechtL/openwrt-docker/issues
-* For anything else start a new discussion here: https://github.com/AlbrechtL/openwrt-docker/discussions
+* If you run into a bug or if you request a feature open a new issue here: https://github.com/b23prodtm/openwrt-balena/issues
+* For anything else start a new discussion here: https://github.com/b23prodtm/openwrt-balena/discussions
 
 ## Web UI screenshots
 
@@ -87,14 +87,14 @@ We really want to help you using this container image.
 
 #### Does it run under MS Windows WSL?
 * Yes, but only `LAN_IF="host"` and `WAN_IF="host"` is supported because WSL doesn't support the `macvtab` driver.
-* See issue https://github.com/AlbrechtL/openwrt-docker/issues/5 for details.
+* See issue https://github.com/b23prodtm/openwrt-balena/issues/5 for details.
 
 #### Does the Raspberry Pi 5 supports PCI pass-through?
-Unfortunately not. Please see https://github.com/AlbrechtL/openwrt-docker/issues/38#issuecomment-2864155732 for details.
+Unfortunately not. Please see https://github.com/b23prodtm/openwrt-balena/issues/38#issuecomment-2864155732 for details.
 
 #### A have a board with two Ethernet ports and I want to use one as OpenWrt LAN and one as OpenWrt WAN without losing the access to the host Linux system.
 * The easiest is to add simply a 3rd Ethernet port to the system, e.g. a USB-Ethernet dongle.
-* You can also create a bridge in at the host and use the option `LAN_IF: "veth,nofixedip"`. See https://github.com/AlbrechtL/openwrt-docker/issues/8 for details.
+* You can also create a bridge in at the host and use the option `LAN_IF: "veth,nofixedip"`. See https://github.com/b23prodtm/openwrt-balena/issues/8 for details.
 
 #### In the `LAN_IF: "veth"` mode the host virtual Ethernet interface IP address is fixed to 172.31.1.2/24. How can I change it?
 You can use the option `nofixedip` e.g. `LAN_IF: "veth,nofixedip"` to avoid that an IP address is set after interface creation. But it is your responsibility to configure the Ethernet interface correctly. The OpenWrt LuCI web interface forwarding is only working correctly when the virtual Ethernet interfaces are configured correctly. Furthermore, the OpenWrt LuCI web interface forwarding is expecting OpenWrt at the IP address 172.31.1.1.
@@ -106,16 +106,18 @@ You can use the option `nofixedip` e.g. `LAN_IF: "veth,nofixedip"` to avoid that
 ## Build and run
 Clone this repo and run
 ```bash
-docker build -t openwrt-docker .
+git clone https://github.com/b23prodtm/openwrt-balena.git
+cd openwrt-balena
+docker build -t openwrt-balena .
 ```
 
 If you like to specify a specific OpenWrt version, you can do (minimum version 24.10.0)
 ```bash
-docker build -t openwrt-docker . --build-arg OPENWRT_VERSION="24.10.0"
+docker build -t openwrt-balena . --build-arg OPENWRT_VERSION="24.10.0"
 ```
 or for the latest development master. The `--no-cache` option is necessary to get always the newest version.
 ```bash
-docker build --no-cache -t openwrt-docker . --build-arg OPENWRT_VERSION="master"
+docker build --no-cache -t openwrt-balena . --build-arg OPENWRT_VERSION="master"
 ```
 
 ## Acknowledgement
@@ -139,7 +141,6 @@ The web interface does not include built-in user management. Any user who can ac
 
 3. **Host Root Access Implications:**
 By design, any user with root access to the host system also has full control over OpenWrt. Such users can sniff Ethernet traffic and perform man-in-the-middle (MITM) attacks, creating significant security risks. The same applies when OpenWrt runs as a virtual machine directly on the host. To mitigate these risks, strictly control and monitor root access to the host system.
-
 
 4. **Privileged Mode Requirement for OpenWrt Container:**
 The OpenWrt container must run in privileged mode to ensure exclusive access to the host's Ethernet interfaces and to enable the reverse proxy for LuCI on the host. This is necessary for proper operation but comes with inherent security considerations.
