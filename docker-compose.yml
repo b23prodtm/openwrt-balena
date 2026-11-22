@@ -2,7 +2,7 @@ version: '2.1'
 
 services:
   openwrt:
-    image: bprtkop/openwrt-balena:latest # for latest OpenWrt stable version
+    build: .
     privileged: true
 
     environment:
@@ -152,7 +152,6 @@ services:
       - NET_ADMIN
     pid: "host"
     volumes:
-      - "/dev:/dev/"
       - "data:/storage/"
 
 volumes:
