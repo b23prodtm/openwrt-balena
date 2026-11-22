@@ -3,6 +3,11 @@ name: Build, test and publish
 on:
   workflow_call:
     inputs:
+      runner:
+        description: Label du runner (vide = ubuntu-latest)
+        required: false
+        type: string
+        default: ""
       openwrt_version:
         description: OpenWrt version passed as OPENWRT_VERSION build argument (e.g. "master" or "25.12.6")
         required: true
@@ -29,7 +34,7 @@ env:
 jobs:
   build:
     name: Build
-    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }} 
+    runs-on: ${{ inputs.runner || 'ubuntu-latest' }} 
 
     services:
       registry:
@@ -102,7 +107,7 @@ jobs:
   sbom:
     name: SBOM generation
     needs: build
-    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }} 
+    runs-on: ${{ inputs.runner || 'ubuntu-latest' }} 
 
     steps:
       - name: Checkout
@@ -165,7 +170,7 @@ jobs:
   test:
     name: Test
     needs: build
-    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }} 
+    runs-on: ${{ inputs.runner || 'ubuntu-latest' }} 
 
     steps:
       - name: Checkout
@@ -267,7 +272,7 @@ jobs:
   publish:
     name: Publish
     needs: test
-    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }} 
+    runs-on: ${{ inputs.runner || 'ubuntu-latest' }} 
 
     steps:
       - name: Checkout
