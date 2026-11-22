@@ -13,6 +13,5 @@ jobs:
     with:
       openwrt_version: master
       ci_tag: ci-openwrt-master-snapshot
-      app_version_prefix: '0.0.0'
       publish_tags: openwrt-master-snapshot
     secrets: inherit
