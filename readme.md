@@ -151,16 +151,18 @@ The OpenWrt container must run in privileged mode to ensure exclusive access to 
 
 This repository (`b23prodtm/openwrt-balena`) is a fork and adaptation of [**AlbrechtL/openwrt-docker**](https://github.com/AlbrechtL/openwrt-docker), originally created to run OpenWrt inside a full-system QEMU/KVM container with `macvtap` networking.
 
+### License
+This repository is licensed under the **MIT License** — see the [`license.md`](./license.md) file for the full license text and copyright notice.
+
+Please note that the MIT License applies to this repository's own files and wrappers, and does not override the licenses of upstream or bundled software components (such as **OpenWrt** and **QEMU**, which are predominantly under **GPL-2.0**, or third-party drivers/packages). When distributing images or binaries, ensure compliance with each component's respective license terms.
+
 ### Fork & Adaptations (`b23prodtm/openwrt-balena`)
 * Added and adapted configurations for ARM / ARM64 targets (such as Raspberry Pi boards) and one-click deployment metadata (`balena.yml`) for balenaCloud.
 * Configured multi-architecture container builds (`linux/amd64`, `linux/arm64`) and repository/registry references under `b23prodtm/openwrt-balena`.
 
 ### Upstream Open-Source Projects
 This container relies on several upstream open-source projects, each governed by its own license terms:
-* [**OpenWrt**](https://openwrt.org/) — Linux-based embedded router OS and packages (predominantly GPL-2.0 and compatible open-source licenses).
+* [**OpenWrt**](https://openwrt.org/) — Linux-based embedded router OS and packages.
 * [**QEMU**](https://www.qemu.org/) & [**qemu-docker**](https://github.com/qemus/qemu-docker) — Full system emulation and container wrapper.
 * [**Alpine Linux**](https://www.alpinelinux.org/) — Container base image and userland packages.
 * [**noVNC**](https://novnc.com/), [**Docker**](https://www.docker.com/), [**Angular**](https://angular.dev/), and [**Angular Material**](https://material.angular.io/).
-
-### License Compliance
-* This project inherits the repository license defined in the [`LICENSE`](./LICENSE) file (originally from `AlbrechtL/openwrt-docker`). Please refer to [`LICENSE`](./LICENSE) and any generated SBOM / upstream package notices for exact redistribution and source-availability obligations.
