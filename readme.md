@@ -1,6 +1,6 @@
 # OpenWrt docker container for x86_64, arm64 and Weidmueller u-OS
 
-[![Docker pulls](https://img.shields.io/docker/pulls/b23prodtm/openwrt-balena)](https://hub.docker.com/r/b23prodtm/openwrt-balena)
+[![Docker pulls](https://img.shields.io/docker/pulls/b23prodtm/openwrt-balena)](https://hub.docker.com/r/bprtkop/openwrt-balena)
 [![OpenWrt stable build](https://github.com/b23prodtm/openwrt-balena/actions/workflows/openwrt-stable-build.yml/badge.svg)](https://github.com/b23prodtm/openwrt-balena/actions/workflows/openwrt-stable-build.yml)
 [![OpenWrt master build](https://github.com/b23prodtm/openwrt-balena/actions/workflows/openwrt-master-build.yml/badge.svg)](https://github.com/b23prodtm/openwrt-balena/actions/workflows/openwrt-master-build.yml)
 

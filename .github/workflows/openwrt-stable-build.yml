@@ -3,15 +3,26 @@ name: OpenWrt stable build
 on:
   push:
     branches:
-      - master
+      - main
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      runner:
+        description: Runner du job build (ubuntu-latest par défaut, self-hosted = build locale)
+        required: true
+        type: choice
+        options:
+          - ubuntu-latest
+          - self-hosted
+        default: ubuntu-latest
 
 jobs:
   build-test-publish:
     uses: ./.github/workflows/build-test-publish.yml
     with:
+      runner: ${{ inputs.runner || 'ubuntu-latest' }}
       openwrt_version: 25.12.6
       ci_tag: ci-openwrt-stable
-      app_version_prefix: 25.12.6
       publish_tags: latest
       publish_versioned_tag: true
     secrets: inherit
