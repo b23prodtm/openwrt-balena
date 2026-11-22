@@ -1,8 +1,9 @@
 # OpenWrt docker container for x86_64, arm64 and Weidmueller u-OS
 
-[![Docker pulls](https://img.shields.io/docker/pulls/b23prodtm/openwrt-balena)](https://hub.docker.com/r/bprtkop/openwrt-balena)
+[![Docker pulls](https://img.shields.io/docker/pulls/bprtkop/openwrt-balena)](https://hub.docker.com/r/bprtkop/openwrt-balena)
 [![OpenWrt stable build](https://github.com/b23prodtm/openwrt-balena/actions/workflows/openwrt-stable-build.yml/badge.svg)](https://github.com/b23prodtm/openwrt-balena/actions/workflows/openwrt-stable-build.yml)
 [![OpenWrt master build](https://github.com/b23prodtm/openwrt-balena/actions/workflows/openwrt-master-build.yml/badge.svg)](https://github.com/b23prodtm/openwrt-balena/actions/workflows/openwrt-master-build.yml)
+[![balena deploy button](https://www.balena.io/deploy.svg)](https://dashboard.balena-cloud.com/deploy?repoUrl=https://github.com/b23prodtm/openwrt-balena)
 
 This Docker container brings you OpenWrt, a software-based router solution, in an easy-to-use setup. Unlike other OpenWrt containers, this one provides a full system emulation, complete with OpenWrt's own Linux kernel. Thanks to powerful technologies like KVM and macvtap, OpenWrt runs at nearly native speeds here. We use the original OpenWrt binary builds, so most features should work seamlessly. If you notice any features that aren’t working as expected, please let us know!
 
