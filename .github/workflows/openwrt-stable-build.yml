@@ -3,7 +3,7 @@ name: OpenWrt stable build
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build-test-publish:
