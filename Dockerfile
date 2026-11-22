@@ -16,18 +16,20 @@ COPY ./web-backend .
 
 # Build the application for musl
 RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
-        rustup target add aarch64-unknown-linux-musl; \
-    else \
-        rustup target add x86_64-unknown-linux-musl; \
-    fi
-
-# Build the application for the specific target architecture
-RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
-        cargo build --release --target aarch64-unknown-linux-musl; \
+        rustup target add aarch64-unknown-linux-musl && \
+        cargo build --release --target aarch64-unknown-linux-musl && \
         cp /usr/src/qemu-backend/target/aarch64-unknown-linux-musl/release/qemu-openwrt-web-backend /usr/local/bin; \
-    else \
-        cargo build --release --target x86_64-unknown-linux-musl; \
+    elif [ "$TARGETPLATFORM" = "linux/arm/v7" ]; then \
+        rustup target add armv7-unknown-linux-musleabihf && \
+        cargo build --release --target armv7-unknown-linux-musleabihf && \
+        cp /usr/src/qemu-backend/target/armv7-unknown-linux-musleabihf/release/qemu-openwrt-web-backend /usr/local/bin; \
+    elif [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
+        rustup target add x86_64-unknown-linux-musl && \
+        cargo build --release --target x86_64-unknown-linux-musl && \
         cp /usr/src/qemu-backend/target/x86_64-unknown-linux-musl/release/qemu-openwrt-web-backend /usr/local/bin; \
+    else \
+        echo "Error: CPU architecture $TARGETPLATFORM is not supported"; \
+        exit 1; \
     fi
 
 ########################################################################################################################
@@ -64,6 +66,9 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
         APK_EXTRA="ovmf"; \
     elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
         CPU_ARCH="aarch64"; \
+        APK_EXTRA=""; \
+    elif [ "$TARGETPLATFORM" = "linux/arm/v7" ]; then \
+        CPU_ARCH="arm"; \
         APK_EXTRA=""; \
     else \
         echo "Error: CPU architecture $TARGETPLATFORM is not supported"; \
@@ -114,6 +119,16 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
         else \
             OPENWRT_IMAGE="https://downloads.openwrt.org/releases/${OPENWRT_VERSION}/targets/armsr/armv8/openwrt-${OPENWRT_VERSION}-armsr-armv8-generic-squashfs-combined-efi.img.gz"; \
         fi; \
+    elif [ "$TARGETPLATFORM" = "linux/arm/v7" ]; then \
+        if [ "$OPENWRT_VERSION" = "master" ]; then \
+            OPENWRT_IMAGE="https://downloads.openwrt.org/snapshots/targets/armsr/armv7/openwrt-armsr-armv7-generic-squashfs-combined.img.gz"; \
+        elif [ "$OPENWRT_VERSION" = "24.10-SNAPSHOT" ]; then \
+            wget https://downloads.openwrt.org/releases/24.10-SNAPSHOT/targets/armsr/armv7/version.buildinfo; \
+            VERSION_BUILDINFO=`cat version.buildinfo`; \
+            OPENWRT_IMAGE="https://downloads.openwrt.org/releases/24.10-SNAPSHOT/targets/armsr/armv7/openwrt-24.10-snapshot-${VERSION_BUILDINFO}-armsr-armv7-generic-squashfs-combined.img.gz"; \
+        else \
+            OPENWRT_IMAGE="https://downloads.openwrt.org/releases/${OPENWRT_VERSION}/targets/armsr/armv7/openwrt-${OPENWRT_VERSION}-armsr-armv7-generic-squashfs-combined.img.gz"; \
+        fi; \
     else \
         echo "Error: CPU architecture $TARGETPLATFORM is not supported"; \
         exit 1; \
@@ -155,10 +170,18 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
         -device virtio-net,netdev=qlan0 -netdev user,id=qlan0,net=192.168.1.0/24,hostfwd=tcp::$SSH_PORT-192.168.1.1:22 \
         -device virtio-net,netdev=qwan0 -netdev user,id=qwan0 \
         & QEMU_PID=$!; \
-    else \
+    elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
         SSH_PORT=2022; \
         qemu-system-aarch64 -M virt -cpu cortex-a53 -nographic -nodefaults -m 256 \
         -bios /usr/share/qemu/edk2-aarch64-code.fd \
+        -blockdev driver=raw,node-name=hd0,cache.direct=on,file.driver=file,file.filename=/var/vm/squashfs-combined-${OPENWRT_VERSION}.img \
+        -device virtio-blk-pci,drive=hd0 \
+        -device virtio-net,netdev=qlan0 -netdev user,id=qlan0,net=192.168.1.0/24,hostfwd=tcp::$SSH_PORT-192.168.1.1:22 \
+        -device virtio-net,netdev=qwan0 -netdev user,id=qwan0 \
+        & QEMU_PID=$!; \
+    else \
+        SSH_PORT=3022; \
+        qemu-system-arm -M virt -cpu cortex-a15 -nographic -nodefaults -m 256 \
         -blockdev driver=raw,node-name=hd0,cache.direct=on,file.driver=file,file.filename=/var/vm/squashfs-combined-${OPENWRT_VERSION}.img \
         -device virtio-blk-pci,drive=hd0 \
         -device virtio-net,netdev=qlan0 -netdev user,id=qlan0,net=192.168.1.0/24,hostfwd=tcp::$SSH_PORT-192.168.1.1:22 \
