@@ -1,8 +1,8 @@
+version: '2.1'
+
 services:
   openwrt:
-    container_name: openwrt
     image: bprtkop/openwrt-balena:latest # for latest OpenWrt stable version
-    container_name: openwrt
     privileged: true
 
     environment:
@@ -105,7 +105,7 @@ services:
 
     ports:
       # Container web page (TTY console to OpenWrt, some convenience features) port
-      - 8006:8006
+      - "8006:8006"
 
       # OpenWrt LuCI web interface port (HTTP only)
       # It is not recommended to use this feature if you have the option to use veth (see the recommendation below).
@@ -120,7 +120,7 @@ services:
       #      * Access OpenWrt via the LAN side instead of the WAN side
       #      * No firewall adaption necessary
       #      * For convenience the OpenWrt LuCI web interface is also available port 9000 (HTTPS, FORWARD_LUCI="true" )
-      #- 8000:8000
+      #- "8000:8000"
 
       # OpenWrt SSH port
       # It is not recommended to use this feature if you have the option to use veth (see the recommendation below).
@@ -134,7 +134,7 @@ services:
       #  - Advantages:
       #      * Access OpenWrt via the LAN side instead of the WAN side
       #      * No firewall adaption necessary
-      #- 8022:8022
+      #- "8022:8022"
 
     # It is not recommend to restart this container automatically.
     # If the container stops it intended by the user or something really serious happens.
@@ -145,17 +145,15 @@ services:
 
     # The following settings are mandatory to run the OpenWrt container
     devices:
-      - /dev/kvm
+      - "/dev/kvm"
     device_cgroup_rules:
       - 'c *:* rwm'
     cap_add:
       - NET_ADMIN
     pid: "host"
-    privileged: true
     volumes:
-      - /dev:/dev/
-      - data:/storage/
+      - "/dev:/dev/"
+      - "data:/storage/"
 
 volumes:
   data:
-
