@@ -1,9 +1,9 @@
 services:
   openwrt:
     container_name: openwrt
-    image: albrechtloh/openwrt-docker:latest # for latest OpenWrt stable version
-    #image: albrechtloh/openwrt-docker:openwrt-master-snapshot # for latest OpenWrt master version
-    #image: openwrt-docker
+    image: bprtkop/openwrt-balena:latest # for latest OpenWrt stable version
+    container_name: openwrt
+    privileged: true
 
     environment:
       # Define which physical or virtual WAN Ethernet interfaces shall be attach direct to OpenWrt
