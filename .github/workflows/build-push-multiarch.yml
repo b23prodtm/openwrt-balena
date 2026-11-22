@@ -20,7 +20,7 @@ on:
         default: false
 
 env:
-  IMAGE_NAME: b23prodtm/openwrt-balena
+  IMAGE_NAME: bprtkop/openwrt-balena
 
 jobs:
   build-and-push:
