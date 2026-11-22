@@ -29,7 +29,7 @@ env:
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-26.04
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }} 
 
     services:
       registry:
@@ -102,7 +102,7 @@ jobs:
   sbom:
     name: SBOM generation
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }} 
 
     steps:
       - name: Checkout
@@ -165,7 +165,7 @@ jobs:
   test:
     name: Test
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }} 
 
     steps:
       - name: Checkout
@@ -267,7 +267,7 @@ jobs:
   publish:
     name: Publish
     needs: test
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }} 
 
     steps:
       - name: Checkout
