@@ -16,5 +16,5 @@ import { SideNavigationComponent } from "./side-navigation/side-navigation.compo
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
-  title = 'openwrt-docker-web-gui';
+  title = 'openwrt-balena-web-gui';
 }

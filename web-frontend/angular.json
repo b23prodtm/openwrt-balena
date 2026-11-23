@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "openwrt-docker-web-gui": {
+    "openwrt-balena-web-gui": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
-            "outputPath": "dist/openwrt-docker-web-gui",
+            "outputPath": "dist/openwrt-balena-web-gui",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -68,10 +68,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "openwrt-docker-web-gui:build:production"
+              "buildTarget": "openwrt-balena-web-gui:build:production"
             },
             "development": {
-              "buildTarget": "openwrt-docker-web-gui:build:development"
+              "buildTarget": "openwrt-balena-web-gui:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -129,5 +129,8 @@
     "@schematics/angular:resolver": {
       "typeSeparator": "."
     }
+  },
+  "cli": {
+    "analytics": false
   }
 }
