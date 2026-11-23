@@ -2,7 +2,7 @@ version: '2.1'
 
 services:
   openwrt:
-    build: .
+    image: bprtkop/openwrt-balena:latest # for latest OpenWrt stable version
     privileged: true
 
     environment:
