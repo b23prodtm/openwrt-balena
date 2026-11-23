@@ -6,7 +6,7 @@
   "logo": "openwrt_logo_text_vertical_blue_and_dark_blue.svg",
   "vendor": {
     "name": "Albrecht Lohofener",
-    "url": "https://github.com/AlbrechtL/openwrt-docker",
+    "url": "https://github.com/b23prodtm/openwrt-balena",
     "email": "albrechtloh@gmx.de",
     "street": "",
     "zip": "",
@@ -17,7 +17,7 @@
     "u-link-addon-u-link": {
       "type": "docker-compose",
       "config": {
-        "image": "local/openwrt-docker:latest",
+        "image": "local/openwrt-balena:latest",
         "privileged": true,
         "restart": "no",
         "volumes": [

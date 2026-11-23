@@ -8,7 +8,7 @@ set -Eeuo pipefail
 [ "$(id -u)" -ne "0" ] && error "Script must be executed with root privileges." && exit 12
 
 echo "❯ Starting OpenWrt $OPENWRT_VERSION for Docker ..."
-echo "❯ For support visit https://github.com/AlbrechtL/openwrt-docker"
+echo "❯ For support visit https://github.com/b23prodtm/openwrt-balena"
 echo
 
 # Show alpine version

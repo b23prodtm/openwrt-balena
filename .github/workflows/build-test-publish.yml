@@ -34,7 +34,7 @@ env:
 jobs:
   build:
     name: Build
-    runs-on: ${{ inputs.runner || 'ubuntu-latest' }} 
+    runs-on: ${{ inputs.runner || 'ubuntu-latest' }}
 
     services:
       registry:
@@ -96,18 +96,18 @@ jobs:
           tags: openwrt-balena:latest
           build-args: OPENWRT_VERSION=${{ env.OPENWRT_VERSION }}
           allow: security.insecure,network.host
-          outputs: type=docker,dest=/tmp/openwrt-docker-image.tar
+          outputs: type=docker,dest=/tmp/openwrt-balena-image.tar
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
           name: OpenWrt Docker Image
-          path: /tmp/openwrt-docker-image.tar
+          path: /tmp/openwrt-balena-image.tar
 
   sbom:
     name: SBOM generation
     needs: build
-    runs-on: ${{ inputs.runner || 'ubuntu-latest' }} 
+    runs-on: ${{ inputs.runner || 'ubuntu-latest' }}
 
     steps:
       - name: Checkout
@@ -131,10 +131,10 @@ jobs:
           set -e
 
           sudo find /var/lib/docker/volumes/
-          IMAGE=$(sudo cat /var/lib/docker/volumes/openwrt-docker_data/_data/current_version)
+          IMAGE=$(sudo cat /var/lib/docker/volumes/openwrt-balena_data/_data/current_version)
           echo $IMAGE
 
-          sudo ./src/mount_openwrt_squashfs_combined.sh "/var/lib/docker/volumes/openwrt-docker_data/_data/${IMAGE}"
+          sudo ./src/mount_openwrt_squashfs_combined.sh "/var/lib/docker/volumes/openwrt-balena_data/_data/${IMAGE}"
 
       - name: Generate OpenWrt SBOM
         uses: anchore/sbom-action@v0
@@ -170,7 +170,7 @@ jobs:
   test:
     name: Test
     needs: build
-    runs-on: ${{ inputs.runner || 'ubuntu-latest' }} 
+    runs-on: ${{ inputs.runner || 'ubuntu-latest' }}
 
     steps:
       - name: Checkout
@@ -216,7 +216,7 @@ jobs:
 
       - name: Load image
         run: |
-          multipass exec router-vm -- docker load --input openwrt-docker-image.tar
+          multipass exec router-vm -- docker load --input openwrt-balena-image.tar
           multipass exec router-vm -- docker image ls -a
 
       - name: Prepare VMs
@@ -272,7 +272,7 @@ jobs:
   publish:
     name: Publish
     needs: test
-    runs-on: ${{ inputs.runner || 'ubuntu-latest' }} 
+    runs-on: ${{ inputs.runner || 'ubuntu-latest' }}
 
     steps:
       - name: Checkout

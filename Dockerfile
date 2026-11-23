@@ -214,7 +214,7 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
     && echo "CONTAINER_CREATE_DATETIME=\"`date`\"" >> /var/vm/openwrt_metadata.conf
 
 COPY --from=build-backend /usr/local/bin/qemu-openwrt-web-backend /usr/local/bin/qemu-openwrt-web-backend
-COPY --from=build-frontend /usr/local/app/dist/openwrt-docker-web-gui /var/www/
+COPY --from=build-frontend /usr/local/app/dist/openwrt-balena-web-gui /var/www/
 COPY ./web-frontend/nginx* /var/www/
 COPY ./src /run/
 

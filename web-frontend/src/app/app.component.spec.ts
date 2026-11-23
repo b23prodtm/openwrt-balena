@@ -14,16 +14,16 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have the 'openwrt-docker-web-gui' title`, () => {
+  it(`should have the 'openwrt-balena-web-gui' title`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('openwrt-docker-web-gui');
+    expect(app.title).toEqual('openwrt-balena-web-gui');
   });
 
   it('should render title', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, openwrt-docker-web-gui');
+    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, openwrt-balena-web-gui');
   });
 });
