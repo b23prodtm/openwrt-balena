@@ -1,7 +1,7 @@
 services:
   openwrt:
     container_name: openwrt
-    image: openwrt-docker
+    image: openwrt-balena
     
     environment:
       #DEBUG: "y"
